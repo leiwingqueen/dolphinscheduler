@@ -482,4 +482,43 @@ public class DagHelperTest {
         Assert.assertNotNull(dag);
     }
 
+    /**
+     * 0->1
+     */
+    @Test
+    public void test1() {
+        List<TaskNode> taskNodeList = new ArrayList<>();
+        TaskNode node = new TaskNode();
+        node.setId("0");
+        node.setName("0");
+        node.setCode(0);
+        node.setType("SHELL");
+        taskNodeList.add(node);
+
+        TaskNode node1 = new TaskNode();
+        node1.setId("1");
+        node1.setName("1");
+        node1.setCode(1);
+        node1.setType("SHELL");
+        node1.setDependence(JSONUtils.toJsonString(new String[]{"0"}));
+        taskNodeList.add(node1);
+
+
+        List<String> startNodes = new ArrayList<>();
+        List<String> recoveryNodes = new ArrayList<>();
+        List<TaskNode> destTaskNodeList = DagHelper.generateFlowNodeListByStartNode(taskNodeList,
+                startNodes, recoveryNodes, TaskDependType.TASK_POST);
+        List<TaskNodeRelation> taskNodeRelations = DagHelper.generateRelationListByFlowNodes(destTaskNodeList);
+        ProcessDag processDag = new ProcessDag();
+        processDag.setEdges(taskNodeRelations);
+        processDag.setNodes(destTaskNodeList);
+        DAG<String, TaskNode, TaskNodeRelation> dag = DagHelper.buildDagGraph(processDag);
+        for (String begin : dag.getBeginNode()) {
+            System.out.println("begin:" + begin);
+        }
+        for (String end : dag.getEndNode()) {
+            System.out.println("end:" + end);
+        }
+    }
+
 }
